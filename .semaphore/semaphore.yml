@@ -1,0 +1,20 @@
+agent:
+  machine:
+    type: e1-standard-2
+
+  containers:
+    - name: main
+      image: registry.semaphoreci.com/ruby:3.0.1
+
+    - name: redists
+      image: redislabs/redistimeseries:1.4.8
+
+  blocks:
+  - name: "Hello"
+    task:
+      jobs:
+      - name: Hello
+        commands:
+          - checkout
+          - ruby --version
+
