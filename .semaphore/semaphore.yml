@@ -1,0 +1,34 @@
+version: v1.0
+name: Redismetrics pipeline
+
+agent:
+  machine:
+    type: e1-standard-2
+
+  containers:
+    - name: main
+      image: registry.semaphoreci.com/ruby:3.0.1
+
+    - name: redists
+      image: redislabs/redistimeseries:1.4.8
+
+blocks:
+  - name: "Unit tests"
+    task:
+      env_vars:
+        - name: TEST_REDIS_URL
+          value: redis://redists:6379/0
+
+      prologue:
+        commands:
+          - checkout
+
+          # Setup gems
+          - bundle config set path 'vendor/bundle'
+          - bundle config jobs $(getconf _NPROCESSORS_ONLN)
+          - bundle install
+
+      jobs:
+      - name: RSpec unit tests
+        commands:
+          - bundle exec rake
