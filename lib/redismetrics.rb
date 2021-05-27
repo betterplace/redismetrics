@@ -21,6 +21,20 @@ module Redismetrics
       end
     end
 
+    def duration(**write_options, &block)
+      meter do |client|
+        start = Time.now
+
+        block.(client)
+
+        duration = (Time.now - start).to_f
+
+        client.write(
+          **({ value: duration } | write_options)
+        )
+      end
+    end
+
     private
 
     def mutex
@@ -30,5 +44,9 @@ module Redismetrics
 
   def meter(&block)
     ::Redismetrics.meter(&block)
+  end
+
+  def duration(**write_options, &block)
+    ::Redismetrics.duration(**write_options, &block)
   end
 end

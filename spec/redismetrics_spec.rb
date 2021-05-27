@@ -13,4 +13,13 @@ describe Redismetrics do
   describe '#meter' do
     it 'foos'
   end
+
+  describe '.duration' do
+    it 'foos'
+  end
+
+
+  describe '#duration' do
+    it 'foos'
+  end
 end
