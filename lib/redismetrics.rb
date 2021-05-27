@@ -17,7 +17,11 @@ module Redismetrics
 
     def meter(&block)
       mutex.synchronize do
-        block.(@client)
+        if @client
+          block.(@client)
+        else
+          block.(NULL)
+        end
       end
     end
 

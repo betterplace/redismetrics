@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description = "This library allows you to store application metrics on a redistimeseries server".freeze
   s.email = "developers@betterplace.org".freeze
   s.extra_rdoc_files = ["README.md".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/local_redis_refinement.rb".freeze, "lib/redismetrics/version.rb".freeze]
-  s.files = [".envrc".freeze, ".gitignore".freeze, ".semaphore/semaphore.yml".freeze, ".utilsrc".freeze, "Gemfile".freeze, "README.md".freeze, "Rakefile".freeze, "VERSION".freeze, "docker-compose.yml".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/local_redis_refinement.rb".freeze, "lib/redismetrics/version.rb".freeze, "redismetrics.gemspec".freeze, "spec/client_spec.rb".freeze, "spec/redismetrics_spec.rb".freeze, "spec/spec_helper.rb".freeze]
+  s.files = [".envrc".freeze, ".gitignore".freeze, ".semaphore/semaphore.yml".freeze, ".utilsrc".freeze, "Gemfile".freeze, "LICENSE".freeze, "README.md".freeze, "Rakefile".freeze, "VERSION".freeze, "docker-compose.yml".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/local_redis_refinement.rb".freeze, "lib/redismetrics/version.rb".freeze, "redismetrics.gemspec".freeze, "spec/client_spec.rb".freeze, "spec/redismetrics_spec.rb".freeze, "spec/spec_helper.rb".freeze]
   s.homepage = "https://github.com/betterplace/redismetrics".freeze
   s.licenses = ["Apache-2.0".freeze]
   s.rdoc_options = ["--title".freeze, "Redismetrics -- metrics library".freeze, "--main".freeze, "README.md".freeze]
