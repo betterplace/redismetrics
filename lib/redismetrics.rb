@@ -5,7 +5,7 @@ require 'tins/xt'
 module Redismetrics
   class << self
     def configure(&block)
-      mutex.synchronize do
+      monitor.synchronize do
         unless @client
           block.nil? and raise ArgumentError,
             '&block returning Redis instance needed as argument'
@@ -16,7 +16,7 @@ module Redismetrics
     end
 
     def meter(&block)
-      mutex.synchronize do
+      monitor.synchronize do
         if @client
           block.(@client)
         else
@@ -41,8 +41,8 @@ module Redismetrics
 
     private
 
-    def mutex
-      @mutex ||= Mutex.new
+    def monitor
+      @monitor ||= Monitor.new
     end
   end
 
