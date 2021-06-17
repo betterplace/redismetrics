@@ -19,12 +19,11 @@ class Redismetrics::Client
 
   # Writes the value +value+ as a metric named +key+ using +retention+ in
   # seconds as a floating point value.
-  def write(key:, value:, retention: 0.0)
-    begin
-      @redis.ts_create key: key, retention: (retention * MS).ceil
-    rescue Redis::CommandError # assume it already exists
-    end
-    @redis.ts_add key: key, value: value
+  def write(key:, value:, retention: 0.0, labels: {})
+    labels = Hash(labels).symbolize_keys_recursive
+    labels[:key] = key
+    @redis.ts_add key: key, value: value, retention: (retention * MS).ceil,
+      labels: labels.to_a
     self
   rescue Redis::CommandError => e
     # Catch all command errors and log them instead of crashing here when only
