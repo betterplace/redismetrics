@@ -10,13 +10,13 @@ agent:
       image: registry.semaphoreci.com/ruby:3.0.1
 
     - name: redists
-      image: redislabs/redistimeseries:1.4.8
+      image: redislabs/redistimeseries:1.4.9
 
 blocks:
   - name: "Unit tests"
     task:
       env_vars:
-        - name: TEST_REDIS_URL
+        - name: REDIS_URL
           value: redis://redists:6379/0
 
       prologue:

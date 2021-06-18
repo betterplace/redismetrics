@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Redismetrics::Client do
   let :redis do
-    Redis.new(url: ENV.fetch('TEST_REDIS_URL')) # avoid flushing any running redis instances
+    Redis.new(url: ENV.fetch('REDIS_URL')) # avoid flushing any running redis instances
   end
 
   before do
@@ -69,6 +69,15 @@ describe Redismetrics::Client do
       expect { client.retention!(key: 'foo', time: 2323.0) }.to change {
         client.retention(key: 'foo')
       }.from(666.0).to(2323.0)
+    end
+  end
+
+  describe '#labels!' do
+    it 'change the labels later' do
+      client.write(key: 'foo', value: 23, labels: {foo: 'bar'})
+      expect { client.labels!(key: 'foo', labels: {bar: 'baz'}) }.to change {
+        client.labels(key: 'foo').to_h
+      }.from({foo: 'bar', key: 'foo'}).to({bar: 'baz',key: 'foo'})
     end
   end
 

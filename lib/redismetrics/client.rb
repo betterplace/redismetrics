@@ -20,10 +20,10 @@ class Redismetrics::Client
   # Writes the value +value+ as a metric named +key+ using +retention+ in
   # seconds as a floating point value.
   def write(key:, value:, retention: 0.0, labels: {})
-    labels = Hash(labels).symbolize_keys_recursive
+    retention    = (retention * MS).ceil
+    labels       = Redismetrics::Labels.new(labels)
     labels[:key] = key
-    @redis.ts_add key: key, value: value, retention: (retention * MS).ceil,
-      labels: labels.to_a
+    @redis.ts_add key: key, value: value, retention: retention, labels: labels.to_a
     self
   rescue Redis::CommandError => e
     # Catch all command errors and log them instead of crashing here when only
@@ -44,8 +44,7 @@ class Redismetrics::Client
 
   # Return the retention time in seconds for the metric +key+.
   def retention(key:)
-    duration = @redis.ts_info(key: key).each_slice(2).to_a.
-      assoc('retentionTime')&.last
+    duration = retention_for_key(key)
     if duration.zero?
       Float::INFINITY
     else
@@ -53,8 +52,21 @@ class Redismetrics::Client
     end
   end
 
+  # Set the retention time for the metric +key+ to +time+ in seconds.
   def retention!(key:, time:)
     @redis.ts_alter(key: key, retention: (time * MS).ceil) == "OK"
+  end
+
+  # Return the labels metric +key+.
+  def labels(key:)
+    labels_for_key(key)
+  end
+
+  # Set the labels for the metric +key+ to +labels+.
+  def labels!(key:, labels: {})
+    labels       = Redismetrics::Labels.new(labels)
+    labels[:key] = key
+    @redis.ts_alter key: key, labels: labels.to_a
   end
 
   # Reads the range of entries from timestamp +from+ to timestamp +to+ (given
@@ -87,6 +99,21 @@ class Redismetrics::Client
   end
 
   private
+
+  def info_entry(key, info_entry_name)
+    @redis.ts_info(key: key)&.each_slice(2)&.find { |name,|
+      name == info_entry_name
+    }&.last
+  rescue
+  end
+
+  def retention_for_key(key)
+    info_entry(key, 'retentionTime')
+  end
+
+  def labels_for_key(key)
+    Redismetrics::Labels.new(Hash[Array(info_entry(key, 'labels'))])
+  end
 
   # Checks the redis connection and raise an error if invalid.
   def check_connection

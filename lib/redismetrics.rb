@@ -1,4 +1,5 @@
 require 'redismetrics/version'
+require 'redismetrics/labels'
 require 'redismetrics/client'
 require 'tins/xt'
 
