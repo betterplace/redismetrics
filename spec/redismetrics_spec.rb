@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Redismetrics do
   let :redis do
-    double
+    double(ping: "PONG")
   end
 
   let :mixin do
@@ -28,6 +28,12 @@ describe Redismetrics do
     end
 
     it 'yields to NULL object if not configured' do
+      expect { |b| described_class.meter(&b) }.to yield_with_args(NULL)
+    end
+
+    it 'yields to NULL object if server unavailable' do
+      described_class.configure { Redis.new }
+      allow_any_instance_of(Redis).to receive(:ping).and_return nil
       expect { |b| described_class.meter(&b) }.to yield_with_args(NULL)
     end
   end

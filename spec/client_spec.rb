@@ -58,7 +58,7 @@ describe Redismetrics::Client do
     it 'catches and logs command errors during writing metrics' do
       allow(client.instance_eval { @redis }).to receive(:ts_add).
         and_raise Redis::CommandError
-      expect(client).to receive(:warn).with(/Caught: Redis::CommandError/)
+      expect(Redismetrics).to receive(:warn).with(/Caught: Redis::CommandError/)
       expect(client.write(key: 'foo', value: 23)).to eq client
     end
   end

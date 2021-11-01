@@ -33,12 +33,7 @@ class Redismetrics::Client
     # They can happen due to timestamp collisions during high congestion
     # scenarios atm we need to be able to set DUPLICATE_POLICY for created
     # metric sequences in order to handle them accordingly for every case.
-    msg = "Caught: #{e.class}: #{e}"
-    if defined?(::Log)
-      ::Log.warn(msg)
-    else
-      warn msg
-    end
+    Redismetrics.warn_about "Caught: #{e.class}: #{e}"
     self
   end
 
@@ -96,6 +91,11 @@ class Redismetrics::Client
   # Returns the keys of the currently existing metrics.
   def keys
     @redis.keys
+  end
+
+  def alive?
+    @redis.ping == "PONG"
+  rescue Redis::CannotConnectError
   end
 
   private

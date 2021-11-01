@@ -1,7 +1,7 @@
 version: '2.4'
 services:
   redists:
-    image: redislabs/redistimeseries:1.4.8
+    image: redislabs/redistimeseries:1.4.10
     restart: unless-stopped
     ports:
     - "64379:6379"

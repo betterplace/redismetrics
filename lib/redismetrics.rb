@@ -10,16 +10,37 @@ module Redismetrics
         unless @client
           block.nil? and raise ArgumentError,
             '&block returning Redis instance needed as argument'
-          @client = Redismetrics::Client.new(redis: block.())
+          @config_block = block
+          @client = Redismetrics::Client.new(redis: @config_block.())
         end
       end
       self
     end
 
+    def warn_about(msg)
+      if defined?(::Log)
+        ::Log.warn(msg)
+      else
+        warn msg
+      end
+    end
+
     def meter(&block)
       monitor.synchronize do
         if @client
-          block.(@client)
+          if @client.alive?
+            block.(@client)
+          else
+            # Attempt to reconnect once…
+            @client = Redismetrics::Client.new(redis: @config_block.()) rescue nil
+            if @client&.alive?
+              block.(@client)
+            else
+              # before giving up:
+              warn_about "Cannot reach redis timeseries server. => Skipping measurement."
+              block.(NULL)
+            end
+          end
         else
           block.(NULL)
         end
@@ -34,7 +55,7 @@ module Redismetrics
 
         duration = (Time.now - start).to_f
 
-        client.write(
+        client&.write(
           **({ value: duration } | write_options)
         )
       end
