@@ -92,13 +92,14 @@ describe Redismetrics::Client do
     end
 
     it 'can return values between from and to timestamps in a metric range' do
+      now = Time.now
       range = client.read(key: 'foo', from: Time.at(Time.now.to_f - 0.11))
       expect(range).to have(1).entries
       expect(range.first.last).to eq '42'
       range = client.read(
         key: 'foo',
-        from: Time.at(Time.now.to_f - 0.21),
-        to: Time.at(Time.now.to_f - 0.11),
+        from: Time.at(now.to_f - 0.21),
+        to: Time.at(now.to_f - 0.11),
       )
       expect(range).to have(1).entries
       expect(range.first.last).to eq '66.6'
