@@ -7,10 +7,10 @@ agent:
 
   containers:
     - name: main
-      image: registry.semaphoreci.com/ruby:3.0.2
+      image: registry.semaphoreci.com/ruby:3.1.2
 
     - name: redists
-      image: redislabs/redistimeseries:1.4.10
+      image: redislabs/redistimeseries:1.6.17
 
 blocks:
   - name: "Unit tests"
