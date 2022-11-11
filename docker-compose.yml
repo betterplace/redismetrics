@@ -2,10 +2,12 @@ version: '3.9'
 services:
   redists:
     image: redislabs/redistimeseries:1.6.17
+    command: [ 'redis-server', '/etc/redis.conf', '--loadmodule', '/usr/lib/redis/modules/redistimeseries.so' ]
     restart: unless-stopped
     ports:
     - "64379:6379"
     volumes:
     - "redis-data:/data:delegated"
+    - "./config/redis.conf:/etc/redis.conf"
 volumes:
   redis-data:
