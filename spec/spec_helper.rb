@@ -10,4 +10,7 @@ begin
   require 'byebug'
 rescue LoadError
 end
+if url = ENV['TEST_REDIS_URL']
+  ENV['REDIS_URL'] = url
+end
 require 'redismetrics'

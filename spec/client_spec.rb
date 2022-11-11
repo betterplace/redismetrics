@@ -61,6 +61,12 @@ describe Redismetrics::Client do
       expect(Redismetrics).to receive(:warn).with(/Caught: Redis::CommandError/)
       expect(client.write(key: 'foo', value: 23)).to eq client
     end
+
+    it 'can select a duplicate policy for conflicting timestamps' do
+      same_time = Time.now
+      client.write(key: 'foo', value: 23, timestamp: same_time)
+      client.write(key: 'foo', value: 23, timestamp: same_time, on_duplicate: 'LAST')
+    end
   end
 
   describe '#retention!' do
@@ -82,24 +88,24 @@ describe Redismetrics::Client do
   end
 
   describe '#read' do
+    let :now do
+      Time.now
+    end
+
     before do
-      client.write(key: 'foo', value: 23)
-      sleep 0.1
-      client.write(key: 'foo', value: 66.6)
-      sleep 0.1
-      client.write(key: 'foo', value: 42)
-      sleep 0.1
+      client.write(key: 'foo', value: 23, timestamp: now)
+      client.write(key: 'foo', value: 66.6, timestamp: now + 0.1)
+      client.write(key: 'foo', value: 42, timestamp: now + 0.2)
     end
 
     it 'can return values between from and to timestamps in a metric range' do
-      now = Time.now
-      range = client.read(key: 'foo', from: Time.at(Time.now.to_f - 0.11))
+      range = client.read(key: 'foo', from: now + 0.15)
       expect(range).to have(1).entries
       expect(range.first.last).to eq '42'
       range = client.read(
         key: 'foo',
-        from: Time.at(now.to_f - 0.21),
-        to: Time.at(now.to_f - 0.11),
+        from: now + 0.09,
+        to: now + 0.11,
       )
       expect(range).to have(1).entries
       expect(range.first.last).to eq '66.6'

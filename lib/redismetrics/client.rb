@@ -17,11 +17,13 @@ class Redismetrics::Client
 
   # Writes the value +value+ as a metric named +key+ using +retention+ in
   # seconds as a floating point value.
-  def write(key:, value:, retention: 0.0, labels: {})
+  def write(key:, value:, timestamp: nil, retention: 0.0, labels: {}, on_duplicate: nil)
     retention    = (retention * MS).ceil
     labels       = Redismetrics::Labels.new(labels)
     labels[:key] = key
-    @redis.ts_add key: key, value: value, retention: retention, labels: labels.to_a
+    timestamp = timestamp.nil? ? ?* : (timestamp.to_f * MS).round(0)
+    @redis.ts_add key: key, value: value, timestamp: timestamp,
+      retention: retention, labels: labels.to_a, on_duplicate: on_duplicate
     self
   rescue Redis::CommandError => e
     # Catch all command errors and log them instead of crashing here when only
