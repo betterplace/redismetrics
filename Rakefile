@@ -11,7 +11,7 @@ GemHadar do
   description 'This library allows you to store application metrics on a redistimeseries server'
   test_dir    'spec'
   ignore      '.*.sw[pon]', 'pkg', 'Gemfile.lock', 'coverage', '.rvmrc',
-    '.AppleDouble', '.DS_Store', '.byebug_history', 'errors.lst', 'tags'
+    '.AppleDouble', '.DS_Store', 'errors.lst', 'tags'
 
   readme      'README.md'
   title       "#{name.camelize} -- metrics library"
@@ -24,7 +24,7 @@ GemHadar do
   development_dependency 'rspec'
   development_dependency 'rspec-collection_matchers'
   development_dependency 'utils'
-  development_dependency 'byebug'
+  development_dependency 'debug'
 end
 
 task :default => :spec

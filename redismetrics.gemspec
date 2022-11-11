@@ -11,8 +11,8 @@ Gem::Specification.new do |s|
   s.date = "2022-11-11"
   s.description = "This library allows you to store application metrics on a redistimeseries server".freeze
   s.email = "developers@betterplace.org".freeze
-  s.extra_rdoc_files = ["README.md".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/labels.rb".freeze, "lib/redismetrics/local_redis_refinement.rb".freeze, "lib/redismetrics/version.rb".freeze]
-  s.files = [".all_images.yml".freeze, ".envrc".freeze, ".gitignore".freeze, ".semaphore/semaphore.yml".freeze, ".tool-versions".freeze, ".utilsrc".freeze, "Gemfile".freeze, "LICENSE".freeze, "README.md".freeze, "Rakefile".freeze, "VERSION".freeze, "docker-compose.yml".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/labels.rb".freeze, "lib/redismetrics/local_redis_refinement.rb".freeze, "lib/redismetrics/version.rb".freeze, "redismetrics.gemspec".freeze, "spec/client_spec.rb".freeze, "spec/labels_spec.rb".freeze, "spec/redismetrics_spec.rb".freeze, "spec/spec_helper.rb".freeze]
+  s.extra_rdoc_files = ["README.md".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/labels.rb".freeze, "lib/redismetrics/version.rb".freeze]
+  s.files = [".all_images.yml".freeze, ".envrc".freeze, ".gitignore".freeze, ".semaphore/semaphore.yml".freeze, ".tool-versions".freeze, ".utilsrc".freeze, "Gemfile".freeze, "LICENSE".freeze, "README.md".freeze, "Rakefile".freeze, "VERSION".freeze, "config/redis.conf".freeze, "docker-compose.yml".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/labels.rb".freeze, "lib/redismetrics/version.rb".freeze, "redismetrics.gemspec".freeze, "spec/client_spec.rb".freeze, "spec/labels_spec.rb".freeze, "spec/redismetrics_spec.rb".freeze, "spec/spec_helper.rb".freeze]
   s.homepage = "https://github.com/betterplace/redismetrics".freeze
   s.licenses = ["Apache-2.0".freeze]
   s.rdoc_options = ["--title".freeze, "Redismetrics -- metrics library".freeze, "--main".freeze, "README.md".freeze]
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
     s.add_development_dependency(%q<rspec>.freeze, [">= 0"])
     s.add_development_dependency(%q<rspec-collection_matchers>.freeze, [">= 0"])
     s.add_development_dependency(%q<utils>.freeze, [">= 0"])
-    s.add_development_dependency(%q<byebug>.freeze, [">= 0"])
+    s.add_development_dependency(%q<debug>.freeze, [">= 0"])
     s.add_runtime_dependency(%q<redistimeseries>.freeze, [">= 0"])
     s.add_runtime_dependency(%q<tins>.freeze, [">= 0"])
   else
@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rspec>.freeze, [">= 0"])
     s.add_dependency(%q<rspec-collection_matchers>.freeze, [">= 0"])
     s.add_dependency(%q<utils>.freeze, [">= 0"])
-    s.add_dependency(%q<byebug>.freeze, [">= 0"])
+    s.add_dependency(%q<debug>.freeze, [">= 0"])
     s.add_dependency(%q<redistimeseries>.freeze, [">= 0"])
     s.add_dependency(%q<tins>.freeze, [">= 0"])
   end
