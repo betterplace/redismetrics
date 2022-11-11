@@ -2,4 +2,5 @@
 
 source 'https://rubygems.org'
 
+gem 'redistimeseries', github: 'flori/redistimeseries'
 gemspec

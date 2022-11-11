@@ -1,9 +1,7 @@
 require 'redis'
 require 'redistimeseries'
-require 'redismetrics/local_redis_refinement'
 
 using Redistimeseries::RedisRefinement
-using Redismetrics::LocalRedisRefinement
 
 class Redismetrics::Client
   MS = 1_000.0 # This constant is used to convert ruby floating point
