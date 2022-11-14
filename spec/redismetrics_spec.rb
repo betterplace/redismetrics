@@ -48,6 +48,14 @@ describe Redismetrics do
     it 'yields to NULL object if not configured' do
       expect { |b| mixin.meter(&b) }.to yield_with_args(NULL)
     end
+
+    it 'attempts to reconnect if connection was lost' do
+      described_class.configure { Redis.new }
+      client = described_class.instance_variable_get(:@client)
+      expect(client.instance_variable_get(:@redis)).to receive(:ping).
+          and_raise Redis::CannotConnectError
+      expect { |b| mixin.meter(&b) }.to yield_with_args(kind_of(Redismetrics::Client))
+    end
   end
 
   context 'duration' do
@@ -59,7 +67,6 @@ describe Redismetrics do
     end
 
     describe '.duration' do
-
       it 'can measure the duration of a block' do
         described_class.duration(key: 'foo') { sleep 0.1 }
         Redismetrics.meter do |c|
@@ -75,6 +82,57 @@ describe Redismetrics do
           expect(c.read(key: 'foo', convert: :to_f).to_a.last.last).to be >= 0.1
         end
       end
+
+      it 'stores the maximum duration of multiple conflicting blocks' do
+        now = Time.now
+        mixin.duration(key: 'foo', timestamp: now) { sleep 0.1 }
+        mixin.duration(key: 'foo', timestamp: now) { sleep 0.3 }
+        mixin.duration(key: 'foo', timestamp: now) { sleep 0.1 }
+        Redismetrics.meter do |c|
+          expect(c.read(key: 'foo').count).to eq 1
+          value = c.read(key: 'foo', convert: :to_f).to_a.last.last
+          expect(value).to be >= 0.3
+          expect(value).to be < 3.1
+        end
+      end
     end
+  end
+
+  context 'count' do
+    before do
+      described_class.configure { Redis.new }
+      Redismetrics.meter do |c|
+        c.destroy key: 'foo'
+      end
+    end
+
+    describe '.count' do
+      it 'can the count the execution a block' do
+        described_class.count(key: 'foo') {}
+        Redismetrics.meter do |c|
+          expect(c.read(key: 'foo', convert: :to_f).to_a.last.last).to eq 1
+        end
+      end
+    end
+
+    describe '#count' do
+      it 'can measure the count of a block' do
+        mixin.count(key: 'foo') {}
+        Redismetrics.meter do |c|
+          expect(c.read(key: 'foo', convert: :to_f).to_a.last.last).to eq 1
+        end
+      end
+
+      it 'can sum the counts of two conflicting blocks' do
+        now = Time.now
+        mixin.count(key: 'foo', timestamp: now) {}
+        mixin.count(key: 'foo', timestamp: now) {}
+        Redismetrics.meter do |c|
+          expect(c.read(key: 'foo').count).to eq 1
+          expect(c.read(key: 'foo', convert: :to_f).to_a.last.last).to eq 2
+        end
+      end
+    end
+
   end
 end

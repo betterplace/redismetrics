@@ -38,10 +38,11 @@ module Redismetrics
             msg['class'].underscore.parameterize(separator: ?_),
           ]
           client.write(
-            key:       key,
-            value:     duration,
-            retention: self.class.retention,
-            labels:    {
+            key:          key,
+            value:        duration,
+            on_duplicate: 'SUM',
+            retention:    self.class.retention,
+            labels: {
               module: 'sidekiq',
               type:   'job_duration',
               queue:  queue,

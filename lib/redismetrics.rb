@@ -57,7 +57,17 @@ module Redismetrics
         duration = (Time.now - start).to_f
 
         client&.write(
-          **({ value: duration } | write_options)
+          **({ value: duration, on_duplicate: 'MAX' } | write_options)
+        )
+      end
+    end
+
+    def count(**write_options, &block)
+      meter do |client|
+        block.(client)
+
+        client&.write(
+          **({ value: 1, on_duplicate: 'SUM' } | write_options)
         )
       end
     end
@@ -75,5 +85,9 @@ module Redismetrics
 
   def duration(**write_options, &block)
     ::Redismetrics.duration(**write_options, &block)
+  end
+
+  def count(**write_options, &block)
+    ::Redismetrics.count(**write_options, &block)
   end
 end
