@@ -40,11 +40,23 @@ module Redismetrics
           client.write(
             key:          key,
             value:        duration,
-            on_duplicate: 'SUM',
+            on_duplicate: 'MAX',
             retention:    self.class.retention,
             labels: {
               module: 'sidekiq',
               type:   'job_duration',
+              queue:  queue,
+              failed: failed.to_s,
+            }
+          )
+          client.write(
+            key:          key,
+            value:        duration,
+            on_duplicate: 'SUM',
+            retention:    self.class.retention,
+            labels: {
+              module: 'sidekiq',
+              type:   'job_count',
               queue:  queue,
               failed: failed.to_s,
             }
