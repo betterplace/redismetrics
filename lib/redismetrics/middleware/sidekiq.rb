@@ -33,12 +33,12 @@ module Redismetrics
       ensure
         duration = Time.now - start
         Redismetrics.meter do |client|
-          key = '%s_%s' % [
+          prefix = '%s_%s' % [
             self.class.prefix,
             msg['class'].underscore.parameterize(separator: ?_),
           ]
           client.write(
-            key:          key,
+            key:          prefix + "_duration_seconds",
             value:        duration,
             on_duplicate: 'MAX',
             retention:    self.class.retention,
@@ -50,7 +50,7 @@ module Redismetrics
             }
           )
           client.write(
-            key:          key,
+            key:          prefix + "_count",
             value:        duration,
             on_duplicate: 'SUM',
             retention:    self.class.retention,
