@@ -70,11 +70,32 @@ describe Redismetrics::Client do
   end
 
   describe '#retention!' do
-    it 'change the retention time later' do
+    it 'change the 666.0 configured retention time later' do
       client.write(key: 'foo', value: 23, retention: 666.0)
       expect { client.retention!(key: 'foo', time: 2323.0) }.to change {
         client.retention(key: 'foo')
       }.from(666.0).to(2323.0)
+    end
+
+    it 'change the 0.0 (=Float::INFINITY) default configured retention time later' do
+      client.write(key: 'foo', value: 23)
+      expect { client.retention!(key: 'foo', time: 2323.0) }.to change {
+        client.retention(key: 'foo')
+      }.from(Float::INFINITY).to(2323.0)
+    end
+
+    it 'change the Float::INFINITY configured retention time later' do
+      client.write(key: 'foo', value: 23, retention: Float::INFINITY)
+      expect { client.retention!(key: 'foo', time: 2323.0) }.to change {
+        client.retention(key: 'foo')
+      }.from(Float::INFINITY).to(2323.0)
+    end
+
+    it 'change the 0.0 (=Float::INFINITY) configured retention time later' do
+      client.write(key: 'foo', value: 23, retention: 0.0)
+      expect { client.retention!(key: 'foo', time: 2323.0) }.to change {
+        client.retention(key: 'foo')
+      }.from(Float::INFINITY).to(2323.0)
     end
   end
 

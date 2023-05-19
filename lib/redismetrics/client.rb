@@ -17,8 +17,8 @@ class Redismetrics::Client
 
   # Writes the value +value+ as a metric named +key+ using +retention+ in
   # seconds as a floating point value.
-  def write(key:, value:, timestamp: nil, retention: 0.0, labels: {}, on_duplicate: nil)
-    retention    = (retention * MS).ceil
+  def write(key:, value:, timestamp: nil, retention: Float::INFINITY, labels: {}, on_duplicate: nil)
+    retention    = interpret_retention(retention)
     labels       = Redismetrics::Labels.new(labels)
     labels[:key] = key
     timestamp = timestamp.nil? ? ?* : (timestamp.to_f * MS).round(0)
@@ -39,7 +39,7 @@ class Redismetrics::Client
 
   # Return the retention time in seconds for the metric +key+.
   def retention(key:)
-    duration = retention_for_key(key)
+    duration = retention_for_key(key).to_f
     if duration.zero?
       Float::INFINITY
     else
@@ -99,6 +99,15 @@ class Redismetrics::Client
   end
 
   private
+
+  def interpret_retention(retention)
+    retention = Float(retention)
+    if retention.infinite?
+      0
+    else
+      (retention * MS).ceil
+    end
+  end
 
   def info_entry(key, info_entry_name)
     @redis.ts_info(key: key)&.each_slice(2)&.find { |name,|

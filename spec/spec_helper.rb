@@ -7,7 +7,7 @@ end
 require 'rspec'
 require 'rspec/collection_matchers'
 begin
-  require 'byebug'
+  require 'debug'
 rescue LoadError
 end
 if url = ENV['TEST_REDIS_URL']
