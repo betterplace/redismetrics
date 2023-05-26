@@ -1,6 +1,7 @@
 require 'redismetrics/version'
 require 'redismetrics/labels'
 require 'redismetrics/client'
+require 'redismetrics/irb'
 require 'redismetrics/middleware/sidekiq'
 require 'tins/xt'
 
