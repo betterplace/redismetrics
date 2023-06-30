@@ -1,14 +1,14 @@
 # -*- encoding: utf-8 -*-
-# stub: redismetrics 0.4.0 ruby lib
+# stub: redismetrics 0.4.1 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "redismetrics".freeze
-  s.version = "0.4.0"
+  s.version = "0.4.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Developers, developers, developers,\u2026".freeze]
-  s.date = "2023-05-26"
+  s.date = "2023-06-30"
   s.description = "This library allows you to store application metrics on a redistimeseries server".freeze
   s.email = "developers@betterplace.org".freeze
   s.extra_rdoc_files = ["README.md".freeze, "lib/redismetrics.rb".freeze, "lib/redismetrics/client.rb".freeze, "lib/redismetrics/irb.rb".freeze, "lib/redismetrics/labels.rb".freeze, "lib/redismetrics/middleware/sidekiq.rb".freeze, "lib/redismetrics/version.rb".freeze]
