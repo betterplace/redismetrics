@@ -33,9 +33,10 @@ module Redismetrics
       ensure
         duration = Time.now - start
         Redismetrics.meter do |client|
+          klass = msg['wrapped'] || msg['class']
           prefix = '%s_%s' % [
             self.class.prefix,
-            msg['class'].underscore.parameterize(separator: ?_),
+            klass.underscore.parameterize(separator: ?_),
           ]
           client.write(
             key:          prefix + "_duration_seconds",
