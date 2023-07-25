@@ -2,6 +2,9 @@
 
 require 'redismetrics'
 require 'redismetrics/plugins/sidekiq_monitor'
+require 'logger'
+
+logger = Logger.new(STDERR)
 
 redis_url    = ENV.fetch('REDIS_URL')
 redis_ts_url = ENV.fetch('REDIS_TS_URL')
@@ -9,16 +12,15 @@ plugins = ENV.fetch('PLUGINS', '').split(?,).map {
   Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:)
 }
 interval = ENV.fetch('INTERVAL', '60').to_f
-puts "Monitoring sidekiq operating on #{redis_url.inspect} with "\
+logger.info "Monitoring sidekiq operating on #{redis_url.inspect} with "\
   "plugins #{plugins.map(&:class) * ?,} now…"
 loop do
   start = Time.now
   plugins.each do |plugin|
-    print "Performing monitoring with plugin #{plugin.class} now:"
+    logger.info "Performing monitoring with plugin #{plugin.class} now."
     plugin.perform
-    puts " Done."
   end
   duration = [ interval - (Time.now - start).to_f, 0 ].max
-  puts "Sleeping for #{'%.2f' % duration}s now: Zzz…"
+  logger.info "Sleeping for #{'%.2f' % duration}s now: Zzz…"
   sleep duration
 end
