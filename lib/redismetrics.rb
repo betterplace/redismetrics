@@ -6,6 +6,13 @@ require 'redismetrics/middleware/sidekiq'
 require 'tins/xt'
 
 module Redismetrics
+  module Plugins
+  end
+end
+
+require 'redismetrics/plugins/sidekiq_monitor'
+
+module Redismetrics
   class << self
     def configure(&block)
       monitor.synchronize do
