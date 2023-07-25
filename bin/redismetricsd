@@ -4,14 +4,14 @@ require 'redismetrics'
 require 'redismetrics/plugins/sidekiq_monitor'
 require 'logger'
 
-logger = Logger.new(STDERR)
-
+STDOUT.sync  = true
+logger       = Logger.new(STDOUT)
 redis_url    = ENV.fetch('REDIS_URL')
 redis_ts_url = ENV.fetch('REDIS_TS_URL')
-plugins = ENV.fetch('PLUGINS', '').split(?,).map {
+interval     = ENV.fetch('INTERVAL', '60').to_f
+plugins      = ENV.fetch('PLUGINS', '').split(?,).map {
   Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:)
 }
-interval = ENV.fetch('INTERVAL', '60').to_f
 logger.info "Monitoring sidekiq operating on #{redis_url.inspect} with "\
   "plugins #{plugins.map(&:class) * ?,} now…"
 loop do
