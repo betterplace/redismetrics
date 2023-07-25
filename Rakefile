@@ -16,6 +16,8 @@ GemHadar do
   readme      'README.md'
   title       "#{name.camelize} -- metrics library"
   licenses    << 'Apache-2.0'
+  bindir      'bin'
+  executables Dir['bin/*'].map(&File.method(:basename))
 
   dependency             'redistimeseries'
   dependency             'tins'
@@ -25,6 +27,7 @@ GemHadar do
   development_dependency 'rspec-collection_matchers'
   development_dependency 'utils'
   development_dependency 'debug'
+  development_dependency 'sidekiq'
 end
 
 task :default => :spec
