@@ -9,11 +9,12 @@ logger       = Logger.new(STDOUT)
 redis_url    = ENV.fetch('REDIS_URL')
 redis_ts_url = ENV.fetch('REDIS_TS_URL')
 interval     = ENV.fetch('INTERVAL', '60').to_f
+retention    = ENV.fetch('RETENTION', 7 * 86_400).to_f
 plugins      = ENV.fetch('PLUGINS', '').split(?,).map {
-  Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:)
+  Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:, retention:)
 }
 logger.info "Monitoring sidekiq operating on #{redis_url.inspect} with "\
-  "plugins #{plugins.map(&:class) * ?,} now…"
+  "plugins #{plugins.map(&:class) * ?,} now (retention=#{retention}s, interval=#{interval}s)…"
 loop do
   start = Time.now
   plugins.each do |plugin|
