@@ -37,12 +37,20 @@ module Redismetrics
     private def reconnect
       @reconnected_at = Time.now
       Redismetrics::Client.new(redis: @config_block.())
-    rescue nil
+    rescue
+      nil
     end
 
+    private def reconnect_now?
+      if @reconnected_at
+        (Time.now - @reconnected_at).to_f > 30
+      else
+        true
+      end
+    end
     def meter(&block)
       monitor.synchronize do
-        if @client || (Time.now - @reconnected_at).to_f > 30
+        if @client || reconnect_now?
           if @client&.alive?
             block.(@client)
           else
