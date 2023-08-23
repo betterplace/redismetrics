@@ -56,6 +56,21 @@ describe Redismetrics do
           and_raise Redis::CannotConnectError
       expect { |b| mixin.meter(&b) }.to yield_with_args(kind_of(Redismetrics::Client))
     end
+
+    it 'attempts to reconnect repeatedly after a while if connection was lost' do
+      Time.dummy(Time.parse('2011-11-11 11:11:11')) do
+        described_class.configure { Redis.new }
+        client = described_class.instance_variable_get(:@client)
+        expect(client.instance_variable_get(:@redis)).to receive(:ping).
+          and_raise Redis::CannotConnectError
+        allow(Redismetrics).to receive(:reconnect).once.and_return nil
+        expect { |b| mixin.meter(&b) }.to yield_with_args(NULL)
+      end
+      Time.dummy(Time.parse('2011-11-11 11:11:42')) do
+        allow(Redismetrics).to receive(:reconnect).and_call_original
+        expect { |b| mixin.meter(&b) }.to yield_with_args(kind_of(Redismetrics::Client))
+      end
+    end
   end
 
   context 'duration' do

@@ -20,7 +20,7 @@ module Redismetrics
           block.nil? and raise ArgumentError,
             '&block returning Redis instance needed as argument'
           @config_block = block
-          @client = Redismetrics::Client.new(redis: @config_block.())
+          @client = reconnect
         end
       end
       self
@@ -34,14 +34,19 @@ module Redismetrics
       end
     end
 
+    private def reconnect
+      @reconnected_at = Time.now
+      Redismetrics::Client.new(redis: @config_block.())
+    rescue nil
+    end
+
     def meter(&block)
       monitor.synchronize do
-        if @client
-          if @client.alive?
+        if @client || (Time.now - @reconnected_at).to_f > 30
+          if @client&.alive?
             block.(@client)
           else
-            # Attempt to reconnect once…
-            @client = Redismetrics::Client.new(redis: @config_block.()) rescue nil
+            @client = reconnect
             if @client&.alive?
               block.(@client)
             else
