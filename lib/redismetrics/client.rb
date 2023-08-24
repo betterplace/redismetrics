@@ -17,7 +17,7 @@ class Redismetrics::Client
 
   # Writes the value +value+ as a metric named +key+ using +retention+ in
   # seconds as a floating point value.
-  def write(key:, value:, timestamp: nil, retention: Float::INFINITY, labels: {}, on_duplicate: nil)
+  def write(key:, value:, timestamp: nil, retention: Redismetrics.config.default_retention, labels: {}, on_duplicate: nil)
     retention    = interpret_retention(retention)
     labels       = Redismetrics::Labels.new(labels)
     labels[:key] = key

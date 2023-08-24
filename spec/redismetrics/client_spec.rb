@@ -50,6 +50,20 @@ describe Redismetrics::Client do
       expect(client.retention(key: 'foo')).to eq 666.0
     end
 
+    it 'can create a new metric range with the default retention time' do
+      client.write(key: 'foo', value: 23)
+      expect(client.retention(key: 'foo')).to be_infinite
+    end
+
+    it 'can create a new metric range with a configured retention time' do
+      Redismetrics.configure {
+        default_retention 23 * 86_400
+      }
+      client.write(key: 'foo', value: 23)
+      expect(client.retention(key: 'foo')).to eq 23 * 86_400
+      Redismetrics.reset_configuration
+    end
+
     it 'writes new metric ranges with infinite retention time by default' do
       client.write(key: 'foo', value: 23)
       expect(client.retention(key: 'foo')).to be_infinite
