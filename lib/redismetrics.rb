@@ -1,4 +1,5 @@
 require 'redismetrics/version'
+require 'redismetrics/config'
 require 'redismetrics/labels'
 require 'redismetrics/client'
 require 'redismetrics/irb'
@@ -13,16 +14,36 @@ end
 require 'redismetrics/plugins/sidekiq_monitor'
 
 module Redismetrics
+  class Config
+    extend Tins::DSLAccessor
+
+    def initialize(&block)
+      block.nil? and raise ArgumentError,
+        '&block required for configuration'
+      instance_eval(&block)
+    end
+
+    dsl_accessor(:redis_client, -> { NULL })
+
+    dsl_accessor(:reconnect_pause, 30)
+  end
+
   class << self
+    attr_accessor :config
+
     def configure(&block)
       monitor.synchronize do
         unless @client
-          block.nil? and raise ArgumentError,
-            '&block returning Redis instance needed as argument'
-          @config_block = block
+          @config = Config.new(&block)
           @client = reconnect
         end
       end
+      self
+    end
+
+    def reset_configuration
+      @client = nil
+      @config = Config.new {}
       self
     end
 
@@ -36,14 +57,14 @@ module Redismetrics
 
     private def reconnect
       @reconnected_at = Time.now
-      Redismetrics::Client.new(redis: @config_block.())
+      Redismetrics::Client.new(redis: @config.redis_client.())
     rescue
       nil
     end
 
     private def reconnect_now?
       if @reconnected_at
-        (Time.now - @reconnected_at).to_f > 30
+        (Time.now - @reconnected_at).to_f > @config.reconnect_pause
       else
         true
       end
@@ -99,6 +120,7 @@ module Redismetrics
       @monitor ||= Monitor.new
     end
   end
+  reset_configuration
 
   def meter(&block)
     ::Redismetrics.meter(&block)
