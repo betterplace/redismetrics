@@ -3,26 +3,6 @@ module Redismetrics
     class Sidekiq
       include Sidekiq::ServerMiddleware if defined? Sidekiq::ServerMiddleware
 
-      class << self
-        attr_accessor :prefix
-
-        attr_accessor :retention
-
-        def configure(options = {})
-          if block_given?
-            yield self
-          else
-            options.each do |key, val|
-              self.send("#{key}=", val)
-            end
-          end
-        end
-      end
-
-      self.prefix    = 'job'
-
-      self.retention = 7 * 86_400
-
       def call(job_instance, msg, queue)
         start = Time.now
         failed = false
@@ -35,14 +15,13 @@ module Redismetrics
         Redismetrics.meter do |client|
           klass = msg['wrapped'] || msg['class']
           prefix = '%s_%s' % [
-            self.class.prefix,
+            Redismetrics.config.sidekiq_prefix,
             klass.underscore.parameterize(separator: ?_),
           ]
           client.write(
             key:          prefix + "_duration_seconds",
             value:        duration,
             on_duplicate: 'MAX',
-            retention:    self.class.retention,
             labels: {
               module: 'sidekiq',
               type:   'job_duration',
@@ -54,7 +33,6 @@ module Redismetrics
             key:          prefix + "_count",
             value:        duration,
             on_duplicate: 'SUM',
-            retention:    self.class.retention,
             labels: {
               module: 'sidekiq',
               type:   'job_count',

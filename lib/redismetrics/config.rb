@@ -14,4 +14,6 @@ class Redismetrics::Config
   dsl_accessor(:reconnect_pause, 30)
 
   dsl_accessor(:default_retention, Float::INFINITY)
+
+  dsl_accessor(:sidekiq_prefix, 'job')
 end
