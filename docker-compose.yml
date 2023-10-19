@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   redists:
-    image: redislabs/redistimeseries:1.8.10
+    image: redislabs/redistimeseries:1.10.6
     command: [ 'redis-server', '/etc/redis.conf', '--loadmodule', '/usr/lib/redis/modules/redistimeseries.so' ]
     restart: unless-stopped
     ports:
