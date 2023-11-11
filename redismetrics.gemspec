@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-# stub: redismetrics 0.10.0 ruby lib
+# stub: redismetrics 0.11.0 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "redismetrics".freeze
-  s.version = "0.10.0"
+  s.version = "0.11.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]

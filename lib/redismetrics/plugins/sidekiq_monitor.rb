@@ -6,9 +6,11 @@ end
 class Redismetrics::Plugins::SidekiqMonitor
   include Redismetrics
 
-  def initialize(redis_url:, redis_ts_url:, retention: 7 * 86_400, reconnect_pause: 30)
-    @redis_url = redis_url
-    @retention = retention.to_f
+  def initialize(redis_url:, redis_ts_url:, retention: 7 * 86_400, reconnect_pause: 30, skip_queue: /\z\A/, logger: nil)
+    @redis_url  = redis_url
+    @retention  = retention.to_f
+    @skip_queue = Regexp.new(skip_queue)
+    @logger     = logger
     Sidekiq.configure_client do |config|
       config.redis = { url: redis_url }
     end
@@ -29,6 +31,11 @@ class Redismetrics::Plugins::SidekiqMonitor
   def perform
     meter do |client|
       queues.each do |queue|
+        if queue.name =~ @skip_queue
+          @logger&.info "Skipping queue #{queue.name.inspect} and not writing metrics."
+          next
+        end
+        @logger&.info "Writing metrics for queue #{queue.name.inspect}."
         client.write(
           key:          "sidekiq_size_#{queue.name.gsub(/\W/, '_')}",
           value:        queue.size,
@@ -58,7 +65,7 @@ class Redismetrics::Plugins::SidekiqMonitor
   private
 
   def queues
-    Sidekiq::Queue.all.reject { |q| q.name.start_with?('sidekiq_alive-') }
+    Sidekiq::Queue.all
   end
 
   def processes

@@ -11,11 +11,13 @@ redis_ts_url    = ENV.fetch('REDIS_TS_URL')
 interval        = ENV.fetch('INTERVAL', '60').to_f
 retention       = ENV.fetch('RETENTION', 7 * 86_400).to_f
 reconnect_pause = ENV.fetch('RECONNECT_PAUSE', 30).to_f
+skip_queue      = ENV.fetch('SKIP_QUEUE', '\z\A')
 plugins         = ENV.fetch('PLUGINS', '').split(?,).map {
-  Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:, retention:, reconnect_pause:)
+  Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:, retention:, reconnect_pause:, skip_queue:, logger:)
 }
 logger.info "Monitoring sidekiq operating on #{redis_url.inspect} with "\
-  "plugins #{plugins.map(&:class) * ?,} now (retention=#{retention}s, interval=#{interval}s, reconnect_pause=#{reconnect_pause}s)…"
+  "plugins #{plugins.map(&:class) * ?,} now (retention=#{retention}s, interval=#{interval}s, reconnect_pause=#{reconnect_pause}s)…\n"\
+  "Skipping all queues matching /#{skip_queue}/"
 loop do
   start = Time.now
   plugins.each do |plugin|
