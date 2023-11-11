@@ -4,17 +4,18 @@ require 'redismetrics'
 require 'redismetrics/plugins/sidekiq_monitor'
 require 'logger'
 
-STDOUT.sync  = true
-logger       = Logger.new(STDOUT)
-redis_url    = ENV.fetch('REDIS_URL')
-redis_ts_url = ENV.fetch('REDIS_TS_URL')
-interval     = ENV.fetch('INTERVAL', '60').to_f
-retention    = ENV.fetch('RETENTION', 7 * 86_400).to_f
-plugins      = ENV.fetch('PLUGINS', '').split(?,).map {
-  Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:, retention:)
+STDOUT.sync     = true
+logger          = Logger.new(STDOUT)
+redis_url       = ENV.fetch('REDIS_URL')
+redis_ts_url    = ENV.fetch('REDIS_TS_URL')
+interval        = ENV.fetch('INTERVAL', '60').to_f
+retention       = ENV.fetch('RETENTION', 7 * 86_400).to_f
+reconnect_pause = ENV.fetch('RECONNECT_PAUSE', 30).to_f
+plugins         = ENV.fetch('PLUGINS', '').split(?,).map {
+  Redismetrics::Plugins.const_get(_1).new(redis_url:, redis_ts_url:, retention:, reconnect_pause:)
 }
 logger.info "Monitoring sidekiq operating on #{redis_url.inspect} with "\
-  "plugins #{plugins.map(&:class) * ?,} now (retention=#{retention}s, interval=#{interval}s)…"
+  "plugins #{plugins.map(&:class) * ?,} now (retention=#{retention}s, interval=#{interval}s, reconnect_pause=#{reconnect_pause}s)…"
 loop do
   start = Time.now
   plugins.each do |plugin|

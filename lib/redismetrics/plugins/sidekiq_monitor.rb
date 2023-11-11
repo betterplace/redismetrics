@@ -6,13 +6,24 @@ end
 class Redismetrics::Plugins::SidekiqMonitor
   include Redismetrics
 
-  def initialize(redis_url:, redis_ts_url:, retention: 7 * 86_400)
+  def initialize(redis_url:, redis_ts_url:, retention: 7 * 86_400, reconnect_pause: 30)
     @redis_url = redis_url
     @retention = retention.to_f
     Sidekiq.configure_client do |config|
       config.redis = { url: redis_url }
     end
-    Redismetrics.configure { Redis.new(url: redis_ts_url) }
+    pause = reconnect_pause
+    Redismetrics.configure do
+      redis_client -> {
+        begin
+          Redis.new(url: redis_ts_url)
+        rescue
+          NULL
+        end
+      }
+      reconnect_pause   pause
+      default_retention retention
+    end
   end
 
   def perform
