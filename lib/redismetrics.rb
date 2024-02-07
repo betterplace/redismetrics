@@ -69,6 +69,7 @@ module Redismetrics
         true
       end
     end
+
     def meter(&block)
       monitor.synchronize do
         if @client || reconnect_now?
